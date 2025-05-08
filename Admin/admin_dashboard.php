@@ -39,8 +39,8 @@ $images = $conn->query("SELECT gallery_images.id, gallery_images.image_path, use
 </head>
 <body>
     <h2>Admin Dashboard</h2>
-    <h3>👤 Users</h3>
-    <p><a href="create_user.php">➕ Create New User</a></p>
+    <h3>Users</h3>
+    <p><a href="create_user.php">Create New User</a></p>
     <table border="1" cellpadding="5">
         <tr>
             <th>ID</th><th>Username</th><th>Email</th><th>Role</th><th> Profile picture</th><th>Action</th>
@@ -68,7 +68,7 @@ $images = $conn->query("SELECT gallery_images.id, gallery_images.image_path, use
         <?php endwhile; ?>
     </table>
 
-    <h3>🖼️ Gallery Images</h3>
+    <h3> Gallery Images</h3>
     <table border="1" cellpadding="5">
         <tr>
             <th>ID</th><th>User</th><th>Image</th><th>Action</th>
@@ -84,5 +84,6 @@ $images = $conn->query("SELECT gallery_images.id, gallery_images.image_path, use
             </tr>
         <?php endwhile; ?>
     </table>
+    <a href="../logout.php">logout</a>
 </body>
 </html>
