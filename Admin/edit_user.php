@@ -2,7 +2,6 @@
 session_start();
 require_once '../db.php';
 
-// Check if admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     die("Access denied. Admins only.");
 }
@@ -14,7 +13,6 @@ if (!isset($_GET['id'])) {
 $user_id = (int)$_GET['id'];
 $message = '';
 
-// Fetch user data
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -26,10 +24,8 @@ if ($userResult->num_rows !== 1) {
 
 $user = $userResult->fetch_assoc();
 
-// Get roles for dropdown
 $roles = $conn->query("SELECT * FROM roles");
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);

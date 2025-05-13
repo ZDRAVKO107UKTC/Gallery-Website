@@ -45,7 +45,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
         <h1 class="text-3xl font-bold mb-4 text-center">🎨 Online Gallery System</h1>
 
         <?php if (!isset($_SESSION['user_id'])): ?>
-            <!-- Guest View -->
             <p class="text-center">Welcome, guest!</p>
             <div class="text-center mt-4">
                 <a href="login.php" class="text-blue-600 hover:underline">🔐 Login</a> | 
@@ -53,7 +52,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
             </div>
 
         <?php elseif ($_SESSION['role'] === 'admin'): ?>
-            <!-- Admin View -->
             <div class="text-center">
                 <h3 class="text-xl font-semibold">Welcome, Admin <?= htmlspecialchars($_SESSION['username']) ?>!</h3>
                 <div class="mt-4">
@@ -63,7 +61,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
             </div>
 
         <?php elseif ($_SESSION['role'] === 'user'): ?>
-            <!-- User View -->
             <div class="mb-6">
                 <h3 class="text-xl font-semibold">Welcome, <?= htmlspecialchars($_SESSION['username']) ?>!</h3>
                 <p class="mt-2">
@@ -78,7 +75,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
                 </div>
             <?php endif; ?>
 
-            <!-- Upload form -->
             <h3 class="text-lg font-semibold mb-2">📤 Upload New Image</h3>
             <form method="post" enctype="multipart/form-data" class="space-y-4 mb-8">
                 <div>
@@ -92,7 +88,6 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Upload</button>
             </form>
 
-            <!-- User gallery -->
             <h3 class="text-lg font-semibold mb-2">🖼️ Your Gallery</h3>
             <?php
             $stmt = $conn->prepare("SELECT * FROM gallery_images WHERE user_id = ? ORDER BY uploaded_at DESC");
