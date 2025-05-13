@@ -77,7 +77,7 @@ $images = $conn->query("SELECT gallery_images.id, gallery_images.image_path, use
             <tr>
                 <td><?= $img['id'] ?></td>
                 <td><?= htmlspecialchars($img['username']) ?></td>
-                <td><img src="<?= $img['image_path'] ?>" width="100"></td>
+                <td><img src="../<?= htmlspecialchars($img['image_path']) ?>" width="120"></td>
                 <td>
                     <a href="?delete_image=<?= $img['id'] ?>" onclick="return confirm('Delete this image?')">Delete</a>
                 </td>
