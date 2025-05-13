@@ -2,7 +2,6 @@
 session_start();
 require_once '../db.php';
 
-// Check if admin is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     die("Access denied. Admins only.");
 }
@@ -15,14 +14,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role_id = (int)$_POST['role_id'];
 
-    // Step 1: Create user (without image)
     $stmt = $conn->prepare("INSERT INTO users (username, email, password, role_id) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("sssi", $username, $email, $password, $role_id);
 
     if ($stmt->execute()) {
         $user_id = $stmt->insert_id;
 
-        // Step 2: Handle profile picture upload
         $uploadDir = "uploads/profiles/";
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -33,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $targetFile = $uploadDir . $user_id . "." . $imageExt;
 
             if (move_uploaded_file($_FILES["profile_image"]["tmp_name"], $targetFile)) {
-                // Update profile_image_id = user_id
                 $updateStmt = $conn->prepare("UPDATE users SET profile_image_id = ? WHERE id = ?");
                 $updateStmt->bind_param("ii", $user_id, $user_id);
                 $updateStmt->execute();
@@ -43,55 +39,78 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
-        $message = "User created successfully.";
+        $message = "✅ Потребителят е създаден успешно.";
     } else {
-        $message = "Error: " . $stmt->error;
+        $message = "❌ Грешка: " . $stmt->error;
     }
 
     $stmt->close();
 }
 
-// Load available roles
 $roles = $conn->query("SELECT * FROM roles");
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <title>Create User - Admin</title>
+    <title>Създаване на потребител</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>Create New User</h2>
-    <p><a href="admin_dashboard.php">← Back to Admin Dashboard</a></p>
+<body class="bg-red-50 min-h-screen flex items-center justify-center font-sans text-gray-800">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full border border-red-400">
+        <h2 class="text-2xl font-bold text-center text-red-600 mb-6">➕ Създай потребител</h2>
 
-    <?php if ($message): ?>
-        <p style="color:<?= strpos($message, 'success') !== false ? 'green' : 'red' ?>;">
-            <?= htmlspecialchars($message) ?>
-        </p>
-    <?php endif; ?>
+        <?php if ($message): ?>
+            <div class="mb-4 p-3 rounded <?= strpos($message, 'успешно') !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
 
-    <form method="post" enctype="multipart/form-data">
-        <label>Username:</label><br>
-        <input type="text" name="username" required><br><br>
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label class="block font-medium mb-1">Потребителско име:</label>
+                <input type="text" name="username" required
+                       class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+            <div>
+                <label class="block font-medium mb-1">Имейл:</label>
+                <input type="email" name="email" required
+                       class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+            <div>
+                <label class="block font-medium mb-1">Парола:</label>
+                <input type="password" name="password" required
+                       class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
 
-        <label>Role:</label><br>
-        <select name="role_id" required>
-            <?php while ($role = $roles->fetch_assoc()): ?>
-                <option value="<?= $role['id'] ?>"><?= htmlspecialchars($role['name']) ?></option>
-            <?php endwhile; ?>
-        </select><br><br>
+            <div>
+                <label class="block font-medium mb-1">Роля:</label>
+                <select name="role_id" required
+                        class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <?php while ($role = $roles->fetch_assoc()): ?>
+                        <option value="<?= $role['id'] ?>"><?= htmlspecialchars($role['name']) ?></option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
 
-        <label>Profile Picture:</label><br>
-        <input type="file" name="profile_image" accept="image/*"><br><br>
+            <div>
+                <label class="block font-medium mb-1">Профилна снимка:</label>
+                <input type="file" name="profile_image" accept="image/*"
+                       class="w-full border border-red-300 p-2 rounded bg-white">
+            </div>
 
-        <button type="submit">Create User</button>
-    </form>
+            <button type="submit"
+                    class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition duration-200">
+                Създай потребител
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="admin_dashboard.php" class="text-red-600 hover:underline">← Назад към админ панела</a>
+        </div>
+    </div>
 </body>
 </html>

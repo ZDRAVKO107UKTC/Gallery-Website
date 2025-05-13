@@ -39,13 +39,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $updateStmt->bind_param("ssii", $username, $email, $role_id, $user_id);
 
     if ($updateStmt->execute()) {
-        $message = "User updated successfully.";
-        // Refresh data
+        $message = "✅ Потребителят е обновен успешно.";
         $user['username'] = $username;
         $user['email'] = $email;
         $user['role_id'] = $role_id;
     } else {
-        $message = "Update failed: " . $updateStmt->error;
+        $message = "❌ Грешка при обновяване: " . $updateStmt->error;
     }
 
     $updateStmt->close();
@@ -53,36 +52,56 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <title>Edit User</title>
+    <title>Редакция на потребител</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>Edit User</h2>
-    <p><a href="admin_dashboard.php">← Back to Admin Dashboard</a></p>
+<body class="bg-red-50 min-h-screen flex items-center justify-center font-sans text-gray-800">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full border border-red-400">
+        <h2 class="text-2xl font-bold text-center text-red-600 mb-6">✏️ Редакция на потребител</h2>
 
-    <?php if ($message): ?>
-        <p style="color:green;"><?= htmlspecialchars($message) ?></p>
-    <?php endif; ?>
+        <?php if ($message): ?>
+            <div class="mb-4 p-3 rounded <?= strpos($message, 'успешно') !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php endif; ?>
 
-    <form method="post">
-        <label>Username:</label><br>
-        <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required><br><br>
+        <form method="post" class="space-y-4">
+            <div>
+                <label class="block font-medium mb-1">Потребителско име:</label>
+                <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required
+                       class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required><br><br>
+            <div>
+                <label class="block font-medium mb-1">Имейл:</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required
+                       class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
 
-        <label>Role:</label><br>
-        <select name="role_id" required>
-            <?php while ($role = $roles->fetch_assoc()): ?>
-                <option value="<?= $role['id'] ?>" <?= $role['id'] == $user['role_id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($role['name']) ?>
-                </option>
-            <?php endwhile; ?>
-        </select><br><br>
+            <div>
+                <label class="block font-medium mb-1">Роля:</label>
+                <select name="role_id" required
+                        class="w-full px-3 py-2 border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <?php while ($role = $roles->fetch_assoc()): ?>
+                        <option value="<?= $role['id'] ?>" <?= $role['id'] == $user['role_id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($role['name']) ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
 
-        <button type="submit">Update</button>
-    </form>
+            <button type="submit"
+                    class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition duration-200">
+                Обнови
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="admin_dashboard.php" class="text-red-600 hover:underline">← Назад към админ панела</a>
+        </div>
+    </div>
 </body>
 </html>
