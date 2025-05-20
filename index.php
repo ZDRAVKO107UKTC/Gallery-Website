@@ -6,7 +6,7 @@ $message = '';
 
 if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
-    $caption = trim($_POST['caption']);
+    $caption = isset($_POST['caption']) ? trim($_POST['caption']) : '';
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $uploadDir = "uploads/gallery/$user_id/";
@@ -30,6 +30,35 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
     } else {
         $message = "❌ Please select a valid image.";
     }
+    if (isset($_POST['delete_image_id'])) {
+        $image_id = (int)$_POST['delete_image_id'];
+    
+        // Check ownership
+        $stmt = $conn->prepare("SELECT image_path FROM gallery_images WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $image_id, $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    
+        if ($result && $result->num_rows === 1) {
+            $row = $result->fetch_assoc();
+            $filePath = $row['image_path'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+    
+            $delStmt = $conn->prepare("DELETE FROM gallery_images WHERE id = ?");
+            $delStmt->bind_param("i", $image_id);
+            $delStmt->execute();
+            $delStmt->close();
+    
+            $message = "🗑️ Image deleted successfully.";
+        } else {
+            $message = "❌ Unable to delete image.";
+        }
+    
+        $stmt->close();
+    }
+    
 }
 ?>
 
@@ -103,6 +132,14 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'user' && $_SERVER['REQ
                             <img src="<?= htmlspecialchars($row['image_path']) ?>" alt="Gallery Image" class="w-full h-auto mb-2 rounded">
                             <p class="text-sm text-gray-700 mb-1"><?= htmlspecialchars($row['caption']) ?></p>
                             <p class="text-xs text-gray-500">Uploaded: <?= $row['uploaded_at'] ?></p>
+
+                            <form method="post" class="mt-2">
+                                <input type="hidden" name="delete_image_id" value="<?= $row['id'] ?>">
+                                <button type="submit" class="text-red-600 text-sm hover:underline"
+                                        onclick="return confirm('Are you sure you want to delete this image?')">
+                                    🗑️ Delete
+                                </button>
+                            </form>
                         </div>
                     <?php endwhile; ?>
                 </div>
